@@ -1,75 +1,89 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 
-const NavbarContainer = styled(motion.nav)`
+const NavbarContainer = styled.nav`
   width: 100%;
-  padding: 15px 30px;
+  height: 60px;
+  background: rgba(10, 10, 10, 0.9);
+  backdrop-filter: blur(10px);
+  color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(10, 10, 10, 0.9);
-  backdrop-filter: blur(10px);
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+  padding: 0 20px;
   position: fixed;
   top: 0;
   left: 0;
   z-index: 1000;
 `;
 
-const Logo = styled(motion.div)`
-  font-size: 24px;
+const Logo = styled.h1`
+  font-size: 1.5rem;
   font-weight: bold;
-  color: #fff;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  cursor: pointer;
+  letter-spacing: 1px;
 `;
 
-const NavLinks = styled.ul`
-  list-style: none;
-  display: flex;
-  gap: 20px;
-`;
-
-const NavLink = styled(motion.li)`
-  font-size: 18px;
-  color: #fff;
+const MenuIcon = styled.div`
+  font-size: 2rem;
   cursor: pointer;
   transition: all 0.3s ease;
-
   &:hover {
-    color: #ff4c29;
     transform: scale(1.1);
   }
 `;
 
-const navVariants = {
-  hidden: { opacity: 0, y: -20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
+const MenuContainer = styled(motion.div)`
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 250px;
+  background: rgba(15, 15, 15, 0.95);
+  backdrop-filter: blur(15px);
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px 0 0 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+`;
+
+const MenuItem = styled(Link)`
+  color: white;
+  text-decoration: none;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  &:hover {
+    color: #ff4c29;
+    transform: scale(1.05);
+  }
+`;
 
 const Navbar = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-    <NavbarContainer initial="hidden" animate="visible" variants={navVariants}>
-      <Logo whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-        Eternal Shadow
-      </Logo>
-      <NavLinks>
-        <Link to="/" style={{ textDecoration: "none" }}>
-          <NavLink whileHover={{ y: -5 }} whileTap={{ scale: 0.9 }}>Home</NavLink>
-        </Link>
-        <Link to="/gallery" style={{ textDecoration: "none" }}>
-          <NavLink whileHover={{ y: -5 }} whileTap={{ scale: 0.9 }}>Gallery</NavLink>
-        </Link>
-        <Link to="/videos" style={{ textDecoration: "none" }}>
-          <NavLink whileHover={{ y: -5 }} whileTap={{ scale: 0.9 }}>Videos</NavLink>
-        </Link>
-        <Link to="/downloads" style={{ textDecoration: "none" }}>
-          <NavLink whileHover={{ y: -5 }} whileTap={{ scale: 0.9 }}>Downloads</NavLink>
-        </Link>
-      </NavLinks>
+    <NavbarContainer>
+      <Logo>Eternal Shadow Nexus</Logo>
+      <MenuIcon onClick={() => setMenuOpen(!menuOpen)}>☰</MenuIcon>
+
+      <AnimatePresence>
+        {menuOpen && (
+          <MenuContainer
+            initial={{ x: 250, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 250, opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <MenuItem to="/" onClick={() => setMenuOpen(false)}>Accueil</MenuItem>
+            <MenuItem to="/gallery" onClick={() => setMenuOpen(false)}>Galerie</MenuItem>
+            <MenuItem to="/videos" onClick={() => setMenuOpen(false)}>Vidéos</MenuItem>
+            <MenuItem to="/download" onClick={() => setMenuOpen(false)}>Téléchargements</MenuItem>
+            <MenuItem to="/about" onClick={() => setMenuOpen(false)}>À propos</MenuItem>
+          </MenuContainer>
+        )}
+      </AnimatePresence>
     </NavbarContainer>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
+import { FaHome, FaImages, FaVideo, FaDownload, FaInfoCircle, FaBars, FaTimes } from "react-icons/fa";
 
 const NavbarContainer = styled.nav`
   width: 100%;
@@ -50,14 +51,26 @@ const MenuContainer = styled(motion.div)`
 `;
 
 const MenuItem = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: white;
   text-decoration: none;
   font-size: 1.2rem;
+  padding: 10px;
+  border-radius: 8px;
   transition: all 0.3s ease;
   &:hover {
+    background: rgba(255, 75, 43, 0.2);
     color: #ff4c29;
     transform: scale(1.05);
   }
+`;
+
+const CloseIcon = styled.div`
+  align-self: flex-end;
+  font-size: 1.5rem;
+  cursor: pointer;
 `;
 
 const Navbar = () => {
@@ -66,7 +79,9 @@ const Navbar = () => {
   return (
     <NavbarContainer>
       <Logo>Eternal Shadow Nexus</Logo>
-      <MenuIcon onClick={() => setMenuOpen(!menuOpen)}>☰</MenuIcon>
+      <MenuIcon onClick={() => setMenuOpen(!menuOpen)}>
+        {menuOpen ? <FaTimes /> : <FaBars />}
+      </MenuIcon>
 
       <AnimatePresence>
         {menuOpen && (
@@ -76,11 +91,24 @@ const Navbar = () => {
             exit={{ x: 250, opacity: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <MenuItem to="/" onClick={() => setMenuOpen(false)}>Accueil</MenuItem>
-            <MenuItem to="/gallery" onClick={() => setMenuOpen(false)}>Galerie</MenuItem>
-            <MenuItem to="/videos" onClick={() => setMenuOpen(false)}>Vidéos</MenuItem>
-            <MenuItem to="/download" onClick={() => setMenuOpen(false)}>Téléchargements</MenuItem>
-            <MenuItem to="/about" onClick={() => setMenuOpen(false)}>À propos</MenuItem>
+            <CloseIcon onClick={() => setMenuOpen(false)}>
+              <FaTimes />
+            </CloseIcon>
+            <MenuItem to="/" onClick={() => setMenuOpen(false)}>
+              <FaHome /> Accueil
+            </MenuItem>
+            <MenuItem to="/gallery" onClick={() => setMenuOpen(false)}>
+              <FaImages /> Galerie
+            </MenuItem>
+            <MenuItem to="/videos" onClick={() => setMenuOpen(false)}>
+              <FaVideo /> Vidéos
+            </MenuItem>
+            <MenuItem to="/download" onClick={() => setMenuOpen(false)}>
+              <FaDownload /> Téléchargements
+            </MenuItem>
+            <MenuItem to="/about" onClick={() => setMenuOpen(false)}>
+              <FaInfoCircle /> À propos
+            </MenuItem>
           </MenuContainer>
         )}
       </AnimatePresence>

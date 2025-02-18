@@ -41,7 +41,7 @@ function App() {
       <div className="content">
         <AnimatedRoutes />
         <div style={{ textAlign: "center", margin: "20px 0" }}>
-          <AnimatedButton text="Clique ici" onClick={() => alert("Bouton cliqué !")} />
+          <AnimatedButton text="ATOMIC" onClick={() => alert("I AM ATOMIC !")} />
         </div>
       </div>
       <Footer />

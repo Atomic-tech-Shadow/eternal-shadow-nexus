@@ -75,7 +75,6 @@ const Home = () => {
         </ButtonWrapper>
       </ContentWrapper>
 
-      <Footer />
     </HomeContainer>
   );
 };

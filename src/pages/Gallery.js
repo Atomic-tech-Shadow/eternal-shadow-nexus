@@ -103,7 +103,6 @@ const Gallery = () => {
         )}
       </GalleryGrid>
 
-      <Footer />
     </GalleryContainer>
   );
 };

@@ -26,7 +26,6 @@ const Home = () => {
     >
       <Navbar />
       <HeroSection />
-      <Footer />
     </HomeContainer>
   );
 };

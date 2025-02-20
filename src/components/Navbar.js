@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { FaHome, FaImages, FaVideo, FaDownload, FaInfoCircle, FaBars, FaTimes } from "react-icons/fa";
+import { FaHome, FaImages, FaVideo, FaDownload, FaInfoCircle, FaBars, FaTimes, FaSearch } from "react-icons/fa";
 
 const NavbarContainer = styled.nav`
   width: 100%;
@@ -24,6 +24,43 @@ const Logo = styled.h1`
   font-size: 1.5rem;
   font-weight: bold;
   letter-spacing: 1px;
+`;
+
+const RightSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+`;
+
+const SearchBox = styled.div`
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 5px 10px;
+  transition: all 0.3s ease;
+  &:focus-within {
+    background: rgba(255, 75, 43, 0.3);
+  }
+`;
+
+const SearchInput = styled.input`
+  background: transparent;
+  border: none;
+  color: white;
+  outline: none;
+  padding: 5px;
+  width: 150px;
+  font-size: 14px;
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+`;
+
+const SearchIcon = styled(FaSearch)`
+  color: white;
+  font-size: 16px;
+  margin-left: 5px;
 `;
 
 const MenuIcon = styled.div`
@@ -73,15 +110,30 @@ const CloseIcon = styled.div`
   cursor: pointer;
 `;
 
-const Navbar = () => {
+const Navbar = ({ onSearch }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setQuery(value);
+    onSearch(value);
+  };
 
   return (
     <NavbarContainer>
       <Logo>Eternal Shadow Nexus</Logo>
-      <MenuIcon onClick={() => setMenuOpen(!menuOpen)}>
-        {menuOpen ? <FaTimes /> : <FaBars />}
-      </MenuIcon>
+      
+      <RightSection>
+        <SearchBox>
+          <SearchInput type="text" placeholder="Rechercher..." value={query} onChange={handleSearch} />
+          <SearchIcon />
+        </SearchBox>
+
+        <MenuIcon onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? <FaTimes /> : <FaBars />}
+        </MenuIcon>
+      </RightSection>
 
       <AnimatePresence>
         {menuOpen && (

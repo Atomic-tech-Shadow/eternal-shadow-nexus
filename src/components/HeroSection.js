@@ -1,95 +1,85 @@
-import React, { useEffect, useRef } from "react";
-import styled from "styled-components";
+import React from "react";
+import styled, { keyframes } from "styled-components";
 import { motion } from "framer-motion";
-import gsap from "gsap";
 
-const HeroContainer = styled.section`
+const fadeIn = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 1 } },
+};
+
+const backgroundAnimation = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+const HeroContainer = styled.div`
   width: 100%;
   height: 100vh;
-  background: url("/assets/hero-bg.jpg") center/cover no-repeat;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
+  background: linear-gradient(-45deg, #0f0f0f, #1a1a1a, #222, #333);
+  background-size: 300% 300%;
+  animation: ${backgroundAnimation} 10s ease infinite;
+  color: white;
   text-align: center;
 `;
 
-const Overlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-`;
-
-const HeroContent = styled(motion.div)`
-  z-index: 2;
-  color: white;
-  max-width: 800px;
-  padding: 20px;
-`;
-
 const Title = styled(motion.h1)`
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: bold;
-  text-transform: uppercase;
-  background: linear-gradient(90deg, #ff4c29, #ff007f);
+  background: linear-gradient(90deg, #ff416c, #ff4b2b);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
 `;
 
 const Subtitle = styled(motion.p)`
   font-size: 1.5rem;
-  margin-top: 10px;
-  opacity: 0.8;
+  opacity: 0.9;
+  max-width: 800px;
+  margin: 0 auto;
 `;
 
 const Button = styled(motion.a)`
   display: inline-block;
-  margin-top: 20px;
-  padding: 12px 24px;
+  margin-top: 30px;
+  padding: 12px 30px;
   font-size: 1.2rem;
   font-weight: bold;
-  text-transform: uppercase;
   color: white;
-  background: #ff4c29;
-  border-radius: 5px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-
+  background: linear-gradient(45deg, #ff416c, #ff4b2b);
+  border-radius: 50px;
+  text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0px 4px 15px rgba(255, 75, 43, 0.3);
+  
   &:hover {
-    background: #ff007f;
-    transform: scale(1.1);
+    transform: scale(1.05);
+    box-shadow: 0px 6px 20px rgba(255, 75, 43, 0.5);
   }
 `;
 
 const HeroSection = () => {
-  const titleRef = useRef(null);
-
-  useEffect(() => {
-    gsap.fromTo(
-      titleRef.current,
-      { opacity: 0, y: -50 },
-      { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }
-    );
-  }, []);
-
   return (
     <HeroContainer>
-      <Overlay />
-      <HeroContent
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
+      <Title variants={fadeIn} initial="hidden" animate="visible">
+        Bienvenue sur Eternal Shadow Nexus
+      </Title>
+      <Subtitle variants={fadeIn} initial="hidden" animate="visible" transition={{ delay: 0.3 }}>
+        L’univers ultime des passionnés d’anime, manga et high-tech.
+      </Subtitle>
+      <Button
+        href="/explore"
+        variants={fadeIn}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.6 }}
       >
-        <Title ref={titleRef}>Eternal Shadow Nexus</Title>
-        <Subtitle>Plongez dans l'univers ultime de l'anime et de la technologie</Subtitle>
-        <Button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} href="#explore">
-          Explorer
-        </Button>
-      </HeroContent>
+        Explorer
+      </Button>
     </HeroContainer>
   );
 };

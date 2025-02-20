@@ -78,7 +78,6 @@ const About = () => {
         </Paragraph>
       </AboutContent>
 
-      <Footer />
     </AboutContainer>
   );
 };

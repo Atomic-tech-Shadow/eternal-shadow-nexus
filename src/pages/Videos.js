@@ -70,7 +70,7 @@ const VideoThumbnail = styled.img`
   border-radius: 8px;
 `;
 
-const VideoTitle = styled.h2)`
+const VideoTitle = styled.h2`
   font-size: 1.2rem;
   margin-top: 10px;
   text-align: center;

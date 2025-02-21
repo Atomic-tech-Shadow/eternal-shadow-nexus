@@ -144,7 +144,6 @@ const Videos = () => {
         )}
       </VideoGrid>
 
-      <Footer />
     </VideosContainer>
   );
 };

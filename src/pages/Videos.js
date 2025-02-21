@@ -197,7 +197,7 @@ const Videos = () => {
             </VideoCard>
           ))
         ) : (
-          <p>Aucune vidéo trouvée...</p>
+          <p>Aucune vidéo trouvée mrd...</p>
         )}
       </VideoGrid>
 

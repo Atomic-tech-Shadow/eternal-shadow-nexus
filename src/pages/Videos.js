@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import styled from "styled-components";
 import axios from "axios";
 import { FaDownload } from "react-icons/fa";
+import { debounce } from "lodash";
 
 const VideosContainer = styled(motion.div)`
   width: 100%;
@@ -122,19 +123,24 @@ const Videos = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    if (searchQuery) {
-      axios
-        .get(
-          `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${searchQuery}&key=AIzaSyBGGtxiSpRJYCYyWeHuG37QDRumCsh32Oo`
-        )
-        .then((response) => {
-          setVideos(response.data.items);
-        })
-        .catch((error) => {
-          console.error("Erreur lors du chargement des vidéos :", error);
-        });
+    if (searchQuery.trim() !== "") {
+      fetchVideos(searchQuery);
+    } else {
+      setVideos([]);
     }
   }, [searchQuery]);
+
+  // Fonction pour chercher les vidéos avec un délai pour éviter de spammer l’API
+  const fetchVideos = debounce(async (query) => {
+    try {
+      const response = await axios.get(
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&key=AIzaSyBGGtxiSpRJYCYyWeHuG37QDRumCsh32Oo`
+      );
+      setVideos(response.data.items);
+    } catch (error) {
+      console.error("Erreur lors du chargement des vidéos :", error);
+    }
+  }, 500); // Délai de 500ms avant d’envoyer une nouvelle requête
 
   return (
     <VideosContainer
@@ -191,7 +197,7 @@ const Videos = () => {
             </VideoCard>
           ))
         ) : (
-          <p>Chargement des vidéos...</p>
+          <p>Aucune vidéo trouvée...</p>
         )}
       </VideoGrid>
 

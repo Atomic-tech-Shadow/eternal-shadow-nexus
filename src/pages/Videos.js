@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 import axios from "axios";
 import { FaDownload } from "react-icons/fa";
-import { debounce } from "lodash";
 
 const VideosContainer = styled(motion.div)`
   width: 100%;
@@ -121,17 +120,9 @@ const DownloadButton = styled.a`
 const Videos = () => {
   const [videos, setVideos] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [submittedQuery, setSubmittedQuery] = useState("");
 
-  useEffect(() => {
-    if (searchQuery.trim() !== "") {
-      fetchVideos(searchQuery);
-    } else {
-      setVideos([]);
-    }
-  }, [searchQuery]);
-
-  // Fonction pour chercher les vidéos avec un délai pour éviter de spammer l’API
-  const fetchVideos = debounce(async (query) => {
+  const fetchVideos = async (query) => {
     try {
       const response = await axios.get(
         `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&key=AIzaSyBGGtxiSpRJYCYyWeHuG37QDRumCsh32Oo`
@@ -140,7 +131,14 @@ const Videos = () => {
     } catch (error) {
       console.error("Erreur lors du chargement des vidéos :", error);
     }
-  }, 500); // Délai de 500ms avant d’envoyer une nouvelle requête
+  };
+
+  const handleSearchSubmit = (e) => {
+    if (e.key === "Enter" && searchQuery.trim() !== "") {
+      setSubmittedQuery(searchQuery);
+      fetchVideos(searchQuery);
+    }
+  };
 
   return (
     <VideosContainer
@@ -163,42 +161,43 @@ const Videos = () => {
           placeholder="Rechercher des vidéos..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={handleSearchSubmit}
         />
       </SearchBarWrapper>
 
-      <VideoGrid>
-        {videos.length > 0 ? (
-          videos.map((video, index) => (
-            <VideoCard
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <a
-                href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <VideoThumbnail
-                  src={video.snippet.thumbnails.high.url}
-                  alt={video.snippet.title}
-                />
-                <VideoTitle>{video.snippet.title}</VideoTitle>
-              </a>
+      {submittedQuery && videos.length === 0 && (
+        <p>Aucune vidéo trouvée pour "{submittedQuery}".</p>
+      )}
 
-              <DownloadButton
-                href={`https://www.ssyoutube.com/watch?v=${video.id.videoId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaDownload /> Télécharger
-              </DownloadButton>
-            </VideoCard>
-          ))
-        ) : (
-          <p>Aucune vidéo trouvée mrd...</p>
-        )}
+      <VideoGrid>
+        {videos.map((video, index) => (
+          <VideoCard
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+          >
+            <a
+              href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <VideoThumbnail
+                src={video.snippet.thumbnails.high.url}
+                alt={video.snippet.title}
+              />
+              <VideoTitle>{video.snippet.title}</VideoTitle>
+            </a>
+
+            <DownloadButton
+              href={`https://www.ssyoutube.com/watch?v=${video.id.videoId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaDownload /> Télécharger
+            </DownloadButton>
+          </VideoCard>
+        ))}
       </VideoGrid>
 
     </VideosContainer>

@@ -1,16 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 import axios from "axios";
-import { FaDownload } from "react-icons/fa";
 
 const VideosContainer = styled(motion.div)`
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
-  color: white;
+  background: linear-gradient(135deg, #121212, #1e1e1e);
+  color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -19,7 +18,7 @@ const VideosContainer = styled(motion.div)`
 `;
 
 const Title = styled(motion.h1)`
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: bold;
   text-align: center;
   background: linear-gradient(90deg, #ff416c, #ff4b2b);
@@ -28,32 +27,41 @@ const Title = styled(motion.h1)`
   margin-bottom: 20px;
 `;
 
-const SearchBarWrapper = styled.div`
+const SearchWrapper = styled.div`
   display: flex;
-  justify-content: center;
-  width: 100%;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 20px;
 `;
 
 const SearchBar = styled.input`
-  width: 350px;
+  width: 300px;
   padding: 12px;
-  border-radius: 25px;
-  border: 2px solid #ff4b2b;
-  background: #222;
+  border-radius: 5px;
+  border: none;
+  background: #333;
   color: #fff;
   font-size: 1rem;
   text-align: center;
   outline: none;
-  transition: all 0.3s ease-in-out;
-
-  &:focus {
-    width: 400px;
-    border-color: #ff416c;
-  }
 
   &::placeholder {
     color: #bbb;
+  }
+`;
+
+const SearchButton = styled.button`
+  padding: 12px 20px;
+  background: #ff416c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+
+  &:hover {
+    background: #ff4b2b;
   }
 `;
 
@@ -63,15 +71,15 @@ const VideoGrid = styled.div`
   gap: 20px;
   padding: 20px;
   width: 90%;
-  max-width: 1300px;
+  max-width: 1200px;
 `;
 
 const VideoCard = styled(motion.div)`
   background: #1a1a1a;
-  padding: 15px;
-  border-radius: 12px;
+  padding: 10px;
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0px 4px 12px rgba(255, 65, 108, 0.3);
+  box-shadow: 0px 4px 10px rgba(255, 65, 108, 0.3);
   transition: transform 0.3s ease-in-out;
 
   &:hover {
@@ -81,62 +89,48 @@ const VideoCard = styled(motion.div)`
 
 const VideoThumbnail = styled.img`
   width: 100%;
-  border-radius: 10px;
-  transition: all 0.3s ease-in-out;
-
-  &:hover {
-    filter: brightness(1.1);
-  }
+  border-radius: 8px;
 `;
 
 const VideoTitle = styled.h2`
   font-size: 1.2rem;
+  margin-top: 10px;
   text-align: center;
-  margin-top: 10px;
 `;
 
-const DownloadButton = styled.a`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  background: linear-gradient(90deg, #ff4b2b, #ff416c);
-  color: white;
-  font-weight: bold;
-  text-transform: uppercase;
-  text-decoration: none;
-  border-radius: 5px;
-  transition: all 0.3s ease-in-out;
-
-  &:hover {
-    background: linear-gradient(90deg, #ff416c, #ff4b2b);
-    transform: scale(1.05);
-  }
-`;
+const API_KEY = "AIzaSyBGGtxiSpRJYCYyWeHuG37QDRumCsh32Oo";
 
 const Videos = () => {
   const [videos, setVideos] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [submittedQuery, setSubmittedQuery] = useState("");
+
+  useEffect(() => {
+    if (searchQuery.length > 2) {
+      fetchVideos(searchQuery);
+    }
+  }, [searchQuery]);
 
   const fetchVideos = async (query) => {
     try {
       const response = await axios.get(
-        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&key=AIzaSyBGGtxiSpRJYCYyWeHuG37QDRumCsh32Oo`
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${query}&key=${API_KEY}`
       );
-      setVideos(response.data.items);
+      setVideos(response.data.items || []);
     } catch (error) {
       console.error("Erreur lors du chargement des vidéos :", error);
+      setVideos([]);
     }
   };
 
-  const handleSearchSubmit = (e) => {
-    if (e.key === "Enter" && searchQuery.trim() !== "") {
-      setSubmittedQuery(searchQuery);
+  const handleSearch = () => {
+    if (searchQuery.trim() !== "") {
       fetchVideos(searchQuery);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
     }
   };
 
@@ -155,18 +149,19 @@ const Videos = () => {
         Vidéos Exclusives
       </Title>
 
-      <SearchBarWrapper>
+      <SearchWrapper>
         <SearchBar
           type="text"
           placeholder="Rechercher des vidéos..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={handleSearchSubmit}
+          onKeyDown={handleKeyDown}
         />
-      </SearchBarWrapper>
+        <SearchButton onClick={handleSearch}>Rechercher</SearchButton>
+      </SearchWrapper>
 
-      {submittedQuery && videos.length === 0 && (
-        <p>Aucune vidéo trouvée pour "{submittedQuery}".</p>
+      {videos.length === 0 && searchQuery.trim() !== "" && (
+        <p style={{ color: "#ff4b2b", fontSize: "1.2rem" }}>Aucune vidéo trouvée</p>
       )}
 
       <VideoGrid>
@@ -188,18 +183,9 @@ const Videos = () => {
               />
               <VideoTitle>{video.snippet.title}</VideoTitle>
             </a>
-
-            <DownloadButton
-              href={`https://www.ssyoutube.com/watch?v=${video.id.videoId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FaDownload /> Télécharger
-            </DownloadButton>
           </VideoCard>
         ))}
       </VideoGrid>
-
     </VideosContainer>
   );
 };

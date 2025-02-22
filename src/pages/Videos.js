@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 import axios from "axios";
+import { FaDownload, FaPlay } from "react-icons/fa";  // Icônes de téléchargement et lecture
 
 const API_KEY = "AIzaSyBGGtxiSpRJYCYyWeHuG37QDRumCsh32Oo";
 const BASE_URL = "https://www.googleapis.com/youtube/v3/search";
@@ -21,13 +22,13 @@ const VideosContainer = styled(motion.div)`
 `;
 
 const Title = styled(motion.h1)`
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: bold;
   text-align: center;
   background: linear-gradient(90deg, #ff416c, #ff4b2b);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 `;
 
 const SearchBar = styled.input`
@@ -84,7 +85,14 @@ const VideoTitle = styled.h2`
   margin: 10px 0;
 `;
 
-const WatchButton = styled.a`
+const VideoPlayer = styled.iframe`
+  width: 100%;
+  height: 250px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+`;
+
+const ActionButton = styled.button`
   display: inline-block;
   padding: 10px 15px;
   margin-top: 10px;
@@ -93,12 +101,29 @@ const WatchButton = styled.a`
   color: #fff;
   background: linear-gradient(90deg, #ff416c, #ff4b2b);
   border-radius: 6px;
-  text-decoration: none;
+  border: none;
+  cursor: pointer;
   transition: 0.3s;
 
   &:hover {
     transform: scale(1.1);
     background: linear-gradient(90deg, #ff4b2b, #ff416c);
+  }
+`;
+
+const NextButton = styled.button`
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #ff4b2b;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+
+  &:hover {
+    background-color: #ff416c;
   }
 `;
 
@@ -113,9 +138,10 @@ const Videos = () => {
   const [videos, setVideos] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [nextPageToken, setNextPageToken] = useState("");
 
   // Fonction pour chercher les vidéos
-  const fetchVideos = async (query) => {
+  const fetchVideos = async (query, pageToken = "") => {
     if (!query) return;
 
     setLoading(true);
@@ -127,10 +153,12 @@ const Videos = () => {
           key: API_KEY,
           maxResults: 10,
           type: "video",
+          pageToken,
         },
       });
 
       setVideos(response.data.items || []);
+      setNextPageToken(response.data.nextPageToken);
     } catch (error) {
       console.error("Erreur lors du chargement des vidéos :", error);
       setVideos([]);
@@ -144,6 +172,10 @@ const Videos = () => {
     if (e.key === "Enter") {
       fetchVideos(searchQuery);
     }
+  };
+
+  const handleNext = () => {
+    fetchVideos(searchQuery, nextPageToken);
   };
 
   return (
@@ -181,24 +213,40 @@ const Videos = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <VideoThumbnail
-                src={video.snippet.thumbnails.high.url}
-                alt={video.snippet.title}
+              <VideoPlayer
+                src={`https://www.youtube.com/embed/${video.id.videoId}`}
+                title={video.snippet.title}
+                allowFullScreen
               />
               <VideoTitle>{video.snippet.title}</VideoTitle>
-              <WatchButton
-                href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Regarder
-              </WatchButton>
+              <div>
+                <ActionButton
+                  as="a"
+                  href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FaPlay style={{ marginRight: "8px" }} /> Regarder
+                </ActionButton>
+                <ActionButton
+                  as="a"
+                  href={`https://www.youtube.com/watch?v=${video.id.videoId}&download=true`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FaDownload style={{ marginRight: "8px" }} /> Télécharger
+                </ActionButton>
+              </div>
             </VideoCard>
           ))
         ) : !loading ? (
           <Message>Aucune vidéo trouvée</Message>
         ) : null}
       </VideoGrid>
+
+      {nextPageToken && !loading && (
+        <NextButton onClick={handleNext}>Voir plus</NextButton>
+      )}
 
     </VideosContainer>
   );

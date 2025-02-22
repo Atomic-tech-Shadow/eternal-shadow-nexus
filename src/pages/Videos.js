@@ -1,72 +1,66 @@
 import React, { useState, useEffect } from "react";
-import "./Videos.css"; // Fichier CSS pour le style
 
-const API_KEY = "TA_CLE_YOUTUBE";
-const BASE_URL = "https://www.googleapis.com/youtube/v3/search";
+const API_KEY = "AIzaSyBGGtxiSpRJYCYyWeHuG37QDRumCsh32Oo";
 
 const Videos = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [query, setQuery] = useState("");
   const [videos, setVideos] = useState([]);
-  const [pageToken, setPageToken] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [nextPageToken, setNextPageToken] = useState(null);
 
-  useEffect(() => {
-    if (searchTerm.length > 2) {
-      fetchVideos(true); // Charge les vidéos à chaque modification de la recherche
-    }
-  }, [searchTerm]);
+  const fetchVideos = async (searchQuery, pageToken = "") => {
+    if (!searchQuery) return;
 
-  const fetchVideos = async (reset = false) => {
-    if (!searchTerm) return;
-    setLoading(true);
-
-    const url = `${BASE_URL}?key=${API_KEY}&q=${encodeURIComponent(
-      searchTerm
-    )}&part=snippet&maxResults=10&type=video&pageToken=${reset ? "" : pageToken}`;
+    const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&q=${searchQuery}&part=snippet&type=video&maxResults=10&pageToken=${pageToken}`;
 
     try {
       const response = await fetch(url);
       const data = await response.json();
 
-      setVideos(reset ? data.items : [...videos, ...data.items]);
-      setPageToken(data.nextPageToken || "");
+      if (data.items) {
+        setVideos((prevVideos) => (pageToken ? [...prevVideos, ...data.items] : data.items));
+        setNextPageToken(data.nextPageToken || null);
+      }
     } catch (error) {
       console.error("Erreur de chargement des vidéos :", error);
     }
-    setLoading(false);
   };
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchVideos(query);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
   return (
-    <div className="videos-container">
+    <div>
+      <h2>Recherche YouTube</h2>
       <input
         type="text"
-        placeholder="Rechercher des vidéos..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="search-bar"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Rechercher une vidéo..."
       />
 
-      <div className="videos-grid">
-        {videos.map((video, index) => (
-          <div key={index} className="video-card">
-            <img
-              src={video.snippet.thumbnails.high.url}
-              alt={video.snippet.title}
-              className="video-thumbnail"
-            />
-            <h3 className="video-title">{video.snippet.title}</h3>
-            <p className="video-channel">{video.snippet.channelTitle}</p>
-          </div>
-        ))}
+      <div>
+        {videos.length === 0 ? (
+          <p>Aucune vidéo trouvée</p>
+        ) : (
+          videos.map((video) => (
+            <div key={video.id.videoId}>
+              <a href={`https://www.youtube.com/watch?v=${video.id.videoId}`} target="_blank" rel="noopener noreferrer">
+                <img src={video.snippet.thumbnails.medium.url} alt={video.snippet.title} />
+                <p>{video.snippet.title}</p>
+              </a>
+            </div>
+          ))
+        )}
       </div>
 
-      {pageToken && (
-        <button onClick={() => fetchVideos(false)} className="load-more-btn">
-          Next
-        </button>
+      {nextPageToken && (
+        <button onClick={() => fetchVideos(query, nextPageToken)}>Next</button>
       )}
-
-      {loading && <p className="loading-text">Chargement...</p>}
     </div>
   );
 };

@@ -1,26 +1,28 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { FaDownload } from "react-icons/fa";
+import { FaDownload, FaFileAlt } from "react-icons/fa";
 
 const DownloadContainer = styled.div`
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+  background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
   color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 80px 20px;
+  font-family: 'Arial', sans-serif;
 `;
 
 const Title = styled.h1`
-  font-size: 2.5rem;
-  margin-bottom: 20px;
+  font-size: 3rem;
+  margin-bottom: 30px;
   text-align: center;
   background: linear-gradient(90deg, #ff416c, #ff4b2b);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 `;
 
 const FileList = styled.ul`
@@ -35,17 +37,21 @@ const FileItem = styled.li`
   justify-content: space-between;
   align-items: center;
   background: rgba(255, 255, 255, 0.1);
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 10px;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 15px;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   &:hover {
     background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
   }
 `;
 
 const FileName = styled.span`
-  font-size: 1.2rem;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
 `;
 
 const DownloadButton = styled.a`
@@ -53,9 +59,15 @@ const DownloadButton = styled.a`
   text-decoration: none;
   font-size: 1.5rem;
   transition: transform 0.3s ease;
+  display: flex;
+  align-items: center;
   &:hover {
     transform: scale(1.1);
   }
+`;
+
+const FileIcon = styled(FaFileAlt)`
+  margin-right: 10px;
 `;
 
 const Download = () => {
@@ -91,7 +103,10 @@ const Download = () => {
           files.map((file, index) =>
             file.status === 200 ? (
               <FileItem key={index}>
-                <FileName>{file.name}</FileName>
+                <FileName>
+                  <FileIcon />
+                  {file.name}
+                </FileName>
                 <DownloadButton
                   href={`https://devuploads.com/${file.filecode}`}
                   target="_blank"

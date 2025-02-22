@@ -1,68 +1,84 @@
-import React, { useState, useEffect } from "react";
+// src/pages/Videos.js
+import React, { useState } from 'react';
+import axios from 'axios';
 
-const API_KEY = "AIzaSyBGGtxiSpRJYCYyWeHuG37QDRumCsh32Oo";
-
-const Videos = () => {
-  const [query, setQuery] = useState("");
+const Video = () => {
+  const [query, setQuery] = useState('');
   const [videos, setVideos] = useState([]);
-  const [nextPageToken, setNextPageToken] = useState(null);
+  const [nextPageToken, setNextPageToken] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const fetchVideos = async (searchQuery, pageToken = "") => {
-    if (!searchQuery) return;
+  const API_KEY = 'YOUR_YOUTUBE_API_KEY'; // Replace with your YouTube API key
 
-    const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&q=${searchQuery}&part=snippet&type=video&maxResults=10&pageToken=${pageToken}`;
-
+  const searchVideos = async (pageToken = '') => {
+    setLoading(true);
     try {
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data.items) {
-        setVideos((prevVideos) => (pageToken ? [...prevVideos, ...data.items] : data.items));
-        setNextPageToken(data.nextPageToken || null);
-      }
+      const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
+        params: {
+          part: 'snippet',
+          maxResults: 10,
+          q: query,
+          type: 'video',
+          pageToken: pageToken,
+          key: API_KEY,
+        },
+      });
+      setVideos((prevVideos) => [...prevVideos, ...response.data.items]);
+      setNextPageToken(response.data.nextPageToken);
     } catch (error) {
-      console.error("Erreur de chargement des vidéos :", error);
+      console.error('Error fetching videos:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchVideos(query);
-    }, 500);
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setVideos([]);
+    setNextPageToken('');
+    searchVideos();
+  };
 
-    return () => clearTimeout(timer);
-  }, [query]);
+  const handleNext = () => {
+    searchVideos(nextPageToken);
+  };
 
   return (
     <div>
-      <h2>Recherche YouTube</h2>
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Rechercher une vidéo..."
-      />
+      <h1>YouTube Video Search</h1>
+      <form onSubmit={handleSearch}>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search for videos"
+        />
+        <button type="submit">Search</button>
+      </form>
 
       <div>
-        {videos.length === 0 ? (
-          <p>Aucune vidéo trouvée</p>
-        ) : (
-          videos.map((video) => (
-            <div key={video.id.videoId}>
-              <a href={`https://www.youtube.com/watch?v=${video.id.videoId}`} target="_blank" rel="noopener noreferrer">
-                <img src={video.snippet.thumbnails.medium.url} alt={video.snippet.title} />
-                <p>{video.snippet.title}</p>
-              </a>
-            </div>
-          ))
-        )}
+        {videos.map((video) => (
+          <div key={video.id.videoId} style={{ margin: '10px' }}>
+            <iframe
+              width="300"
+              height="200"
+              src={`https://www.youtube.com/embed/${video.id.videoId}`}
+              title={video.snippet.title}
+              frameBorder="0"
+              allowFullScreen
+            ></iframe>
+            <p>{video.snippet.title}</p>
+          </div>
+        ))}
       </div>
 
       {nextPageToken && (
-        <button onClick={() => fetchVideos(query, nextPageToken)}>Next</button>
+        <button onClick={handleNext} disabled={loading}>
+          {loading ? 'Loading...' : 'Next'}
+        </button>
       )}
     </div>
   );
 };
 
-export default Videos;
+export default Video;

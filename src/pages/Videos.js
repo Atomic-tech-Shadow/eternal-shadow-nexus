@@ -8,7 +8,7 @@ const Video = () => {
   const [nextPageToken, setNextPageToken] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const API_KEY = 'YOUR_YOUTUBE_API_KEY'; // Replace with your YouTube API key
+  const API_KEY = 'AIzaSyBGGtxiSpRJYCYyWeHuG37QDRumCsh32Oo'; // Replace with your YouTube API key
 
   const searchVideos = async (pageToken = '') => {
     setLoading(true);

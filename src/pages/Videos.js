@@ -2,12 +2,27 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { motion } from "framer-motion";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import axios from "axios";
-import { FaDownload, FaPlay } from "react-icons/fa";  // Icônes de téléchargement et lecture
+import { FaDownload, FaPlay } from "react-icons/fa";
 
 const API_KEY = "AIzaSyBGGtxiSpRJYCYyWeHuG37QDRumCsh32Oo";
 const BASE_URL = "https://www.googleapis.com/youtube/v3/search";
+
+// Animation pour le loader
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+const Loader = styled.div`
+  border: 8px solid rgba(255, 255, 255, 0.1);
+  border-left-color: #ff4b2b;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: ${spin} 1s linear infinite;
+`;
 
 const VideosContainer = styled(motion.div)`
   width: 100%;
@@ -140,7 +155,6 @@ const Videos = () => {
   const [loading, setLoading] = useState(false);
   const [nextPageToken, setNextPageToken] = useState("");
 
-  // Fonction pour chercher les vidéos
   const fetchVideos = async (query, pageToken = "") => {
     if (!query) return;
 
@@ -167,7 +181,6 @@ const Videos = () => {
     }
   };
 
-  // Recherche en temps réel avec validation par touche "Entrée"
   const handleSearch = (e) => {
     if (e.key === "Enter") {
       fetchVideos(searchQuery);
@@ -202,52 +215,55 @@ const Videos = () => {
         onKeyDown={handleSearch}
       />
 
-      {loading && <Message>Chargement des vidéos...</Message>}
-
-      <VideoGrid>
-        {videos.length > 0 ? (
-          videos.map((video, index) => (
-            <VideoCard
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <VideoPlayer
-                src={`https://www.youtube.com/embed/${video.id.videoId}`}
-                title={video.snippet.title}
-                allowFullScreen
-              />
-              <VideoTitle>{video.snippet.title}</VideoTitle>
-              <div>
-                <ActionButton
-                  as="a"
-                  href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaPlay style={{ marginRight: "8px" }} /> Regarder
-                </ActionButton>
-                <ActionButton
-                  as="a"
-                  href={`https://www.youtube.com/watch?v=${video.id.videoId}&download=true`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaDownload style={{ marginRight: "8px" }} /> Télécharger
-                </ActionButton>
-              </div>
-            </VideoCard>
-          ))
-        ) : !loading ? (
-          <Message>Aucune vidéo trouvée</Message>
-        ) : null}
-      </VideoGrid>
+      {loading ? (
+        <Loader />
+      ) : (
+        <VideoGrid>
+          {videos.length > 0 ? (
+            videos.map((video, index) => (
+              <VideoCard
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <VideoPlayer
+                  src={`https://www.youtube.com/embed/${video.id.videoId}`}
+                  title={video.snippet.title}
+                  allowFullScreen
+                />
+                <VideoTitle>{video.snippet.title}</VideoTitle>
+                <div>
+                  <ActionButton
+                    as="a"
+                    href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaPlay style={{ marginRight: "8px" }} /> Regarder
+                  </ActionButton>
+                  <ActionButton
+                    as="a"
+                    href={`https://www.youtube.com/watch?v=${video.id.videoId}&download=true`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaDownload style={{ marginRight: "8px" }} /> Télécharger
+                  </ActionButton>
+                </div>
+              </VideoCard>
+            ))
+          ) : (
+            <Message>Aucune vidéo trouvée</Message>
+          )}
+        </VideoGrid>
+      )}
 
       {nextPageToken && !loading && (
         <NextButton onClick={handleNext}>Voir plus</NextButton>
       )}
 
+      <Footer />
     </VideosContainer>
   );
 };
